@@ -87,6 +87,7 @@ ping -c 3 10.10.10.30   # Windows
 
 
 I installed Wazuh manager to monitor the endpoints.
+
 # Repo & key
 curl -sO https://packages.wazuh.com/key/GPG-KEY-WAZUH
 sudo gpg --dearmor -o /usr/share/keyrings/wazuh.gpg GPG-KEY-WAZUH
@@ -98,7 +99,8 @@ sudo apt -y install wazuh-manager
 sudo systemctl enable --now wazuh-manager
 sudo systemctl status wazuh-manager
 
-Then check if UFW is enabled byrunning this:
+Then check if UFW is enabled by running this:
+
 sudo ufw allow 1514/udp
 sudo ufw allow 1515/tcp
 sudo ufw reload
