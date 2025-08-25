@@ -1,12 +1,12 @@
- Home Lab Setup (Pre-Attack)
+# Home Lab Setup (Pre-Attack)
 
-This is the exact setup I used before starting the breach/attack simulations. Follow along step-by-step to replicate my environment.
+This is the exact setup I used before starting the breach/attack simulations. Follow along to replicate my environment.
 
 ---
 
 ## Topology & IP Plan
 
-I isolated everything on a host-only network and added a NAT adapter for internet updates.
+I isolated everything on a **host-only** network and added a **NAT** adapter for internet updates.
 
 Host (laptop/desktop)
 │
@@ -17,9 +17,6 @@ Host (laptop/desktop)
 ├─ Windows 10 Workstation .................. 10.10.10.30
 └─ Kali Linux Attacker ..................... 10.10.10.40
 
-yaml
-Copy
-Edit
 
 **Adapters on every VM**
 - Adapter 1: **Host-Only** (vboxnet0)
@@ -39,7 +36,7 @@ Edit
 
 ## 1) Create VMs
 
-I provisioned each VM with the following minimums and attached **Adapter 1: Host-Only** and **Adapter 2: NAT** before OS install.
+I provisioned each VM with these minimums and attached **Host-Only** + **NAT** before OS install.
 
 | VM | vCPU | RAM | Disk | Notes |
 |---|---:|---:|---:|---|
@@ -48,67 +45,118 @@ I provisioned each VM with the following minimums and attached **Adapter 1: Host
 | Windows 10 | 2 | 4 GB | 60 GB | RDP enabled |
 | Kali Linux | 2 | 4 GB | 40 GB | Default tools |
 
-Create an initial **snapshot** for each VM named `clean-install`.
+Create an initial snapshot for each VM named **`clean-install`**.
 
 ---
 
-## 2) Set Static IPs
+## 2) Networking & Static IPs
 
-### Linux (Ubuntu/Kali) — Netplan
+### Host-Only network
+- Address space: `10.10.10.0/24`
+- DHCP: **Disabled**
 
-I pinned the Host-Only adapter and left the NAT adapter on DHCP.
+### Static IPs I used (Host-Only adapters)
+- Wazuh Manager: `10.10.10.10/24`
+- Ubuntu Web (DVWA): `10.10.10.20/24`
+- Windows 10: `10.10.10.30/24`
+- Kali: `10.10.10.40/24`
 
-sudo nano /etc/netplan/01-netcfg.yaml
+### Linux (Ubuntu/Kali)
+- Configure the Host-Only interface with the static IP above using Netplan.
+- Leave the NAT interface on DHCP (for internet access).
+- Apply the network configuration and confirm the IPs.
 
-Windows 10 — GUI
+### Windows 10
+- Control Panel → Network & Internet → Change adapter options.
+- Open the **Host-Only** adapter → Properties → IPv4 and set:
+  - IP: your assigned `10.10.10.x`
+  - Subnet Mask: `255.255.255.0`
+  - Leave gateway/DNS empty on Host-Only (internet comes from NAT).
 
-Network & Internet → Change adapter options → Host-Only adapter → Properties → IPv4:
+**Connectivity check**
+- From Kali, ping `10.10.10.10`, `10.10.10.20`, and `10.10.10.30`.
+- Ensure all hosts reply on the Host-Only network.
 
-IP: 10.10.10.30
+---
 
-Mask: 255.255.255.0
+## 3) Base Hardening & Tools
 
-Leave gateway/DNS empty on Host-Only (internet comes from NAT adapter)
+### Linux VMs
+- Update packages.
+- Install essentials (curl, git, unzip, vim, net-tools, htop).
+- Reboot if updates require it.
 
-IPs I used
+### Windows VM
+- Enable RDP.
+- Install a modern browser and PowerShell 7.
+- Confirm Windows Defender and Firewall are enabled.
 
-Wazuh Manager: 10.10.10.10/24
+Snapshot all VMs: **`base-tools-ready`**.
 
-Ubuntu Web (DVWA): 10.10.10.20/24
+---
 
-Windows 10: 10.10.10.30/24
+## 4) Wazuh Manager (Ubuntu)
 
-Kali: 10.10.10.40/24
+- Add the official Wazuh APT repository (follow Wazuh docs).
+- Install **wazuh-manager**.
+- Enable and start the service; confirm it’s running.
+- If using UFW, allow ports **1514/udp** and **1515/tcp**.
+- Verify the manager’s Host-Only IP is `10.10.10.10`.
 
-After doing this i checked for conectivity from kali:
-ping -c 3 10.10.10.10   # Wazuh
-ping -c 3 10.10.10.20   # DVWA
-ping -c 3 10.10.10.30   # Windows
+Snapshot: **`wazuh-manager-installed`**.
 
+---
 
-I installed Wazuh manager to monitor the endpoints.
+## 5) Wazuh Agents
 
-# Repo & key
+### Kali (Linux Agent)
+- Install the Wazuh Linux agent package.
+- During setup, set **Manager address** to `10.10.10.10`.
+- Enable and start the agent service; confirm it’s active.
 
-curl -sO https://packages.wazuh.com/key/GPG-KEY-WAZUH
+### Windows Agent
+- Download and install the Wazuh Agent MSI.
+- Set **Manager address** to `10.10.10.10` during installation.
+- Start the agent service and verify it reports to the manager.
 
-sudo gpg --dearmor -o /usr/share/keyrings/wazuh.gpg GPG-KEY-WAZUH
+---
 
-echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
-| sudo tee /etc/apt/sources.list.d/wazuh.list
+## 6) DVWA on Ubuntu Web
 
-sudo apt update
-sudo apt -y install wazuh-manager
-sudo systemctl enable --now wazuh-manager
-sudo systemctl status wazuh-manager
+- Install **Apache**, **MariaDB**, and required **PHP** modules.
+- Secure MariaDB (set root password).
+- Create a **`dvwa`** database and a **`dvwa`** user with full privileges on that DB.
+- Deploy DVWA from its GitHub repository into `/var/www/html/dvwa`.
+- Copy the sample `config.inc.php` and update:
+  - DB user: `dvwa`
+  - DB password: the value you set
+  - DB name: `dvwa`
+- Set appropriate file ownership and permissions for the web server.
+- In `php.ini` (Apache), enable `allow_url_fopen` and `allow_url_include`, then restart Apache.
+- From Kali, browse to `http://10.10.10.20/dvwa`, click **Create / Reset Database**, and log in.
+  - Defaults: `admin` / `password` → change after testing.
 
-Then check if UFW is enabled by running this:
+Snapshot: **`dvwa-ready`**.
 
-sudo ufw allow 1514/udp
-sudo ufw allow 1515/tcp
-sudo ufw reload
+---
 
-Take a snapshot after this installation is complete.
+## 7) Quality Checks
 
+- **Reachability:** Each host responds to ping on the Host-Only network.
+- **Web App:** `http://10.10.10.20/dvwa` loads from Kali.
+- **Monitoring:** Wazuh Manager lists both the **Kali** and **Windows** agents as connected.
+- **Logs:** Events from Kali and Windows are visible on the manager.
 
+---
+
+## 8) Safe Testing Rules
+
+- Keep attack activity on the **Host-Only** network only.
+- Take snapshots before major stages for quick rollback.
+- Never expose DVWA to public networks.
+- Document each configuration change in the repository.
+
+---
+
+## Suggested Repo Structure
 
