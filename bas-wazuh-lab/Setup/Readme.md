@@ -10,7 +10,6 @@ I isolated everything on a **host-only** network and added a **NAT** adapter for
 
 Host (laptop/desktop)
 │
-|---|---:|---:|---:|---|
 ├─ VirtualBox Host-Only: vboxnet0 → 10.10.10.0/24 (no DHCP)
 │
 ├─ Wazuh Manager (Ubuntu Server) .......... 10.10.10.10
