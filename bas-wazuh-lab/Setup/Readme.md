@@ -89,8 +89,11 @@ ping -c 3 10.10.10.30   # Windows
 I installed Wazuh manager to monitor the endpoints.
 
 # Repo & key
+
 curl -sO https://packages.wazuh.com/key/GPG-KEY-WAZUH
+
 sudo gpg --dearmor -o /usr/share/keyrings/wazuh.gpg GPG-KEY-WAZUH
+
 echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
 | sudo tee /etc/apt/sources.list.d/wazuh.list
 
