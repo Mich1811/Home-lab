@@ -1,0 +1,1 @@
+Placeholder for wazuh_discover_queries.txt
