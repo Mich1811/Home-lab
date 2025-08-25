@@ -28,7 +28,7 @@ Host (laptop/desktop)
 
 ## Prerequisites
 
-- VirtualBox (or VMware)
+- VirtualBox
 - ISOs: Ubuntu Server LTS, Kali, Windows 10
 - Host-only network created: `vboxnet0` with `10.10.10.1/24`, DHCP **off**
 
