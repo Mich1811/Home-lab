@@ -10,6 +10,7 @@ I isolated everything on a **host-only** network and added a **NAT** adapter for
 
 Host (laptop/desktop)
 │
+|---|---:|---:|---:|---|
 ├─ VirtualBox Host-Only: vboxnet0 → 10.10.10.0/24 (no DHCP)
 │
 ├─ Wazuh Manager (Ubuntu Server) .......... 10.10.10.10
@@ -149,14 +150,7 @@ Snapshot: **`dvwa-ready`**.
 
 ---
 
-## 8) Safe Testing Rules
 
-- Keep attack activity on the **Host-Only** network only.
-- Take snapshots before major stages for quick rollback.
-- Never expose DVWA to public networks.
-- Document each configuration change in the repository.
 
----
 
-## Suggested Repo Structure
 
