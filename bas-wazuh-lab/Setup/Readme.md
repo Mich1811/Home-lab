@@ -37,6 +37,7 @@ Host (laptop/desktop)
 ## 1) Create VMs
 
 I provisioned each VM with these minimums and attached **Host-Only** + **NAT** before OS install.
+This specs can be increased if your machine can handle
 
 | VM | vCPU | RAM | Disk | Notes |
 |---|---:|---:|---:|---|
