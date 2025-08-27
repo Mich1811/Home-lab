@@ -1,4 +1,4 @@
-## 📌 Scenario 1: DVWA Brute Force Attack
+## 📌 DVWA Brute Force Attack
 
 **Objective**  
 Assess the effectiveness of authentication controls by simulating a brute-force attack against DVWA’s login form.
