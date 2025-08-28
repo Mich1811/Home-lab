@@ -19,7 +19,7 @@ This BAS validates the organization’s ability to **detect, investigate, and re
 | `win-host`     | Windows endpoint              | Windows 10/Server | `10.10.10.30` |
 | `kali-attacker`| Attacker box                  | Kali Linux     | `10.10.10.40` |
 
-> [Screenshot: Network diagram]
+
 
 **Agents/Logs**
 - Wazuh agent on `dvwa-app`, `win-host` (and optionally on `kali-attacker` in local-only mode).
