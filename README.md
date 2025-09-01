@@ -1,4 +1,4 @@
-# Breach Attack Simulation (BAS) – Walkthrough
+# Breach Attack Simulation (BAS) 
 
 ## 1) Summary
 This BAS validates the organization’s ability to **detect, investigate, and respond** to common attacker behaviors across the kill chain. Using a controlled home lab, we executed reconnaissance, initial access, command execution, privilege escalation, lateral movement, data exfiltration, and impact simulation while monitoring with **Wazuh SIEM**.
